@@ -3,6 +3,7 @@
 @tailwind components;
 /* purgecss end ignore */
 @tailwind utilities;
+@import "~antd/dist/antd.css";
 
 @layer base {
   @font-face {
@@ -46,7 +47,20 @@
       background-color: #13aeb7;
     }
     .dashboard-page-height {
-      height: 85.1vh;
+      height: calc(100vh - 99px);
+    }
+    .border-bottom-navbar {
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .sidebar-link-height {
+      height: calc(100vh - 215px);
+    }
+    .content-height {
+      height: calc(100vh - 100px);
+      overflow-x: auto;
+    }
+    .active {
+      background-color: blue;
     }
     .sign-in-button-color {
     }
