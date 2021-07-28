@@ -130,6 +130,8 @@ const  CustomersPay = (props) => {
     control: (base, state) => ({
       ...base,
       background: "#f3f3f3",
+      color: '#6b7280',
+      opicity:1,
       // match with the menu
       borderRadius: state.isFocused ? "8px" : '8px',
       // Overwrittes the different states of border
@@ -141,13 +143,21 @@ const  CustomersPay = (props) => {
       ...base,
       // override border radius to match the box
       borderRadius: '8px',
+      color: '#6b7280',
+
       // kill the gap
       marginTop: 0
     }),
     menuList: base => ({
       ...base,
       // kill the white space on first and last option
-      padding: 0
+      padding: 0,
+      color: '#6b7280',
+    
+    }),
+    singleValue: base => ({
+      ...base,
+      color: '#6b7280'
     })
   };
 
