@@ -1,31 +1,33 @@
 import { useSession, signOut } from 'next-auth/client'
 import { useRouter } from 'next/router'
-import PciManagerComp from '../components/PciManager/PciManager'
+import PciManagerComp from '../components/PciManager'
 import { PrismaClient } from '@prisma/client'
 import { useEffect, useState } from 'react';
+import "react-datepicker/dist/react-datepicker.css";
+
 
 
 export default function PciManager () {
 	const [session, loading]:any = useSession()
-	const [userData,setUserData]:any = useState();
+	const [paymentApplicationData,setPaymentApplicationData]:any = useState();
 	useEffect(() =>{
 		init()
-	},[session])
+	},[])
 	
 	const init = async () => {
-		const response = await fetch(`/api/get-user-profile-data/${session?.user?.data?.email}`, {
+		const response = await fetch(`/api/get-payment-applications`, {
 			method: 'GET'
 		});
 		const data = await response.json()
-		setUserData(data.data)
+		setPaymentApplicationData(data.data)
 	}
 	const router = useRouter()
 
 	return (
 		<div className="sm:p-3">
 			{
-				userData?.email && 
-				<PciManagerComp userDataObj={userData}/>
+				paymentApplicationData && 
+				<PciManagerComp paymentApplicationData={paymentApplicationData} />
 			}
 		</div>
 	)

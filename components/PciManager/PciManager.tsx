@@ -1,407 +1,273 @@
-import React, { ReactNode, useEffect, useState } from 'react'
-import {
-    withFormik, FormikProps, FormikErrors, Form, Field
-  } from 'formik';
-import { signIn,useSession } from 'next-auth/client'
-import { useRouter } from 'next/router'
-import { ToastContainer, toast } from "react-toastify";
-import { Select } from 'antd';
+import React,{ useEffect, useState } from 'react';
+import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import Select from 'react-select';
+import DatePicker from "react-datepicker";
+import { string } from 'yup/lib/locale';
 
-const { Option } = Select;
+// interface FormValues {
+//   paymentApplication: Array [
+//     payment_type:string'',
+//     application_name:'',
+//     version_name:'',
+//     application_vendor:'',
+//     application_expiry:''
+//   ]
+// }
 
-type Props = {
-    
+interface PaymentValue {
 }
 
-// Shape of form values
-interface FormValues {
-    email: string;
-    dba: string;
-    main: string;
-    mobile: string;
-    contact: string;
-    address_line_1: string;
-    address_line_2: string;
-    company: string;
-    mid: string;
-    state: string;
-    country: string;
-    mcc: string;
-    url: string;
-    ip_address: string;
-}
-
-interface OtherProps {
-    message: string;
-}
-
-// Aside: You may see InjectedFormikProps<OtherProps, FormValues> instead of what comes below in older code.. InjectedFormikProps was artifact of when Formik only exported a HoC. It is also less flexible as it MUST wrap all props (it passes them through).
-const InnerForm = (props: OtherProps & FormikProps<FormValues>) => {
-    const { touched, errors, isSubmitting, message,isValid } = props;
-
-    function onChange(value) {
-        console.log(`selected ${value}`);
+const  CustomersPay = (props) => {
+  const{setStepCustomersPay,stepCustomersPay,paymentApplicationData} = props;
+  const [optionPaymentApplications,setOptionPaymentApplications] = useState([]);
+  const [optionVersion,setOptionVersion] = useState([]);
+  const [selectedOption,setSelectedOption] = useState();
+  const [selectedOptionVersion,setSelectedVersionOption] = useState();
+  const [selectedOptionVendor,setSelectedVendorOption] = useState();
+  const initialValues = {
+    paymentApplication: [
+      {
+        payment_type:'',
+        application_name:'',
+        version_name:'',
+        application_vendor:'',
+        application_expiry:new Date()
       }
-    return (
-      <Form>
-        <div className="container flex flex-row ">
-          <div className="height-feet-content container border-2 border-gray-100 flex flex-row flex-wrap w-3/4 border-teal p-4 border-t-12 bg-white rounded-lg shadow-lg">
-            <div className="p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">DBA</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="dba" />
-              {touched.dba && errors.dba && <div className='text-red-500'>{errors.dba}</div>}
-            </div>
+    ]
+  };
+  const [startDate, setStartDate] = useState(new Date());
 
-            <div className="p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">MID</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="mid" />
-              {touched.mid && errors.mid && <div className='text-red-500'>{errors.mid}</div>}
-            </div>
+  useEffect(()=>{
+    if(paymentApplicationData){
+      let setOptionForPaymentApplication = paymentApplicationData.paymentApplicationData.map((val)=>{
+        return {
+          value : val.id,
+          label : val.paymentName
+        }
+      })
+      setOptionPaymentApplications(setOptionForPaymentApplication)
+      // console.log('setOptionForPaymentApplication',setOptionForPaymentApplication)
+    }
+  },[paymentApplicationData])
 
-            <div className="p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Company</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="company" />
-              {touched.company && errors.company && <div className='text-red-500'>{errors.company}</div>}
-            </div>
+  const validationSchema = Yup.object().shape({
+      // paymentApplication: Yup.array().of(
+      //     Yup.object().shape({
+      //         application_name: Yup.object()
+      //             .required('Application name is required'),
+      //         version_name: Yup.object()
+      //             .required('Version name is required'),
+      //         application_vendor: Yup.object()
+      //             .required('Version name is required')
+      //     })
+      // )
+  });
 
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Contact</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="contact" />
-              {touched.contact && errors.contact && <div className='text-red-500'>{errors.contact}</div>}
-            </div>
+  const options = [
+    { value: 'Option 1', label: 'Option 1' },
+    { value: 'Option 2', label: 'Option 2' },
+    { value: 'Option 3', label: 'Option 3' },
+  ];
 
-            <div className="mb-4 p-4">
-            <Select
-                showSearch
-                placeholder="Select a person"
-                optionFilterProp="children"
-                className="mb-4 p-4 w-4/12"
-                onChange={onChange}
-                filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-            >
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="tom">Tom</Option>
-            </Select>,
-            </div>
+  function addPaymentType(e, values, setValues) {
+    console.log("allecd",values)
+    const paymentApplication = [...values.paymentApplication];
+    paymentApplication.push({
+      payment_type:'',
+      application_name:'',
+      version_name:'',
+      application_vendor:'',
+      application_expiry: new Date(),
+      is_application_listed:''
+    })
+    setValues({ ...values, paymentApplication });
+  }
 
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Main</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="main" />
-              {touched.main && errors.main && <div className='text-red-500'>{errors.main}</div>}
-            </div>
+  function onSubmit(fields) {
 
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Mobile</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="mobile" />
-              {touched.mobile && errors.mobile && <div className='text-red-500'>{errors.mobile}</div>}
-            </div>
+      // display form field values on success
+      alert('SUCCESS!! :-)\n\n' + JSON.stringify(fields, null, 4));
+      let currentStep = stepCustomersPay + 1
+      setStepCustomersPay(currentStep)
+  }
 
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Email</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="email" name="email" disabled/>
-              {touched.email && errors.email && <div className='text-red-500'>{errors.email}</div>}
-            </div>
-
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Business address Line 1</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="address_line_1" />
-              {touched.address_line_1 && errors.address_line_1 && <div className='text-red-500'>{errors.address_line_1}</div>}
-            </div>
-
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Business address Line 2</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="address_line_2" />
-              {touched.address_line_2 && errors.address_line_2 && <div className='text-red-500'>{errors.address_line_2}</div>}
-            </div>
-
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">Country</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="country" />
-              {touched.country && errors.country && <div className='text-red-500'>{errors.country}</div>}
-            </div>
-
-            <div className="mb-4 p-4 w-4/12">
-              <label className="font-bold text-gray-600 block mb-2">State</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="state" />
-              {touched.state && errors.state && <div className='text-red-500'>{errors.state}</div>}
-            </div>
-
-            <div className="w-full flex mb-4 p-4 w-4/12">
-              <div className='w-2/4'>
-                <div className='w-full color-13aeb7'>
-                  <h2>Payment channels your business serves:</h2>
-                </div>
-
-                <div className="flex w-full">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="payment_channels" value="mail_odrer" />
-                    <span className="ml-2">Mail Order /Telephone Order</span>
-                  </label>
-                </div>
-
-                <div className="w-full">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="payment_channels" value="ecommerce" />
-                    <span className="ml-2">Ecommerce/Online</span>
-                  </label>
-                </div>
-
-                <div className="w-full">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="payment_channels" value="card_present" />
-                    <span className="ml-2">Card Present (Face to Face)</span>
-                  </label>
-                </div>
-
-              </div>
-              <div className='w-2/4'>
-                <div className='w-full color-13aeb7'>
-                  <h2>What payment channels are covered by this SAQ:</h2>
-                </div>
-
-                <div className="flex w-full">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="payment_channels_covered" value="mail_odrer" />
-                    <span className="ml-2">Mail Order /Telephone Order</span>
-                  </label>
-                </div>
-
-                <div className="w-full">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="payment_channels_covered" value="ecommerce" />
-                    <span className="ml-2">Ecommerce/Online</span>
-                  </label>
-                </div>
-
-                <div className="w-full">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="payment_channels_covered" value="card_present" />
-                    <span className="ml-2">Card Present (Face to Face)</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div className="my-4 flex items-center justify-between">
-					    <button type="submit" className={!isValid ? 'bg-gray-300 text-white py-2 px-4 rounded':'bg-color-13aeb7 transform hover:scale-110 text-white py-2 px-4 rounded transition duration-700 ease-in-out'} disabled={isSubmitting}>
-                  Download Begin
-              </button>
-					  </div>
-          
-          </div>
-
-          <div className="w-1/4 ml-4 border-2 border-gray-100 border-teal p-4 border-t-12 bg-white mb-6 rounded-lg shadow-lg">
-            <div className='flex flex-row'>
-              <div className='w-full' role="group" aria-labelledby="checkbox-group">
-                <div className='w-full color-13aeb7'>
-                  <h2>Type(s) of Business:</h2>
-                </div>
-
-                <div className="w-full my-4">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="business_type" value="retailer" />
-                    <span className="ml-2">Retailer</span>
-                  </label>
-                </div>
-                <div className="w-full my-4">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="business_type" value="grocery" />
-                    <span className="ml-2">Grocery</span>
-                  </label>
-                </div>
-                <div className="w-full my-4">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="business_type" value="petroleum" />
-                    <span className="ml-2">Petroleum</span>
-                  </label>
-                </div>
-
-                <div className="w-full my-4">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="business_type" value="ecommerce" />
-                    <span className="ml-2">Ecommerce/Online</span>
-                  </label>
-                </div>
-
-                <div className="w-full my-4">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="business_type" value="telecommunications" />
-                    <span className="ml-2">Telecommunications</span>
-                  </label>
-                </div>
-
-                <div className="w-full my-4">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="business_type" value="moto" />
-                    <span className="ml-2">MOTO</span>
-                  </label>
-                </div>
-
-                <div className="w-full my-4">
-                  <label className="py-2 flex items-center">
-                    <Field type="checkbox" name="business_type" value="others" />
-                    <span className="ml-2">Others</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div className="">
-              <label className="font-bold text-gray-600 block mb-2">MCC</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="mcc" />
-              {touched.mcc && errors.mcc && <div className='text-red-500'>{errors.mcc}</div>}
-            </div>
-
-            <div className="my-4">
-              <label className="font-bold text-gray-600 block mb-2">URL</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' type="text" name="url" />
-              {touched.url && errors.url && <div className='text-red-500'>{errors.url}</div>}
-            </div>
-
-            <div className="my-4">
-              <label className="font-bold text-gray-600 block mb-2">IP Address</label>
-              <Field className='block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow' component="textarea"
-                rows="2" name="ip_address" />
-              {touched.ip_address && errors.ip_address && <div className='text-red-500'>{errors.ip_address}</div>}
-            </div>
-          </div>
-					
-				</div>
-      </Form>
-    );
+  const handleChange = (e,i,values,setValues) => {
+    const paymentApplication = [...values.paymentApplication];
+    paymentApplication[i].application_name = e
+    setValues({ ...values, paymentApplication });
+    let optionForVersions = paymentApplicationData.paymentApplicationData.filter((paymentTypes) => paymentTypes.id === e.value);
+    console.log("optionForVersions",e," - ",optionForVersions)
+    let setOptionForVersions = optionForVersions[0] && optionForVersions[0].VersionNumber.map((val)=>{
+      return {
+        value : val.id,
+        label : val.name
+      }
+    })
+    setOptionVersion(setOptionForVersions)
+    setSelectedOption(selectedOption);
+  };
+  const handleChangeVersion = (e,i,values,setValues) => {
+    console.log("allecd",e)
+    const paymentApplication = [...values.paymentApplication];
+    paymentApplication[i].version_name = e
+    setValues({ ...values, paymentApplication });
+    // setSelectedVersionOption(selectedOption);
+  };
+  const handleChangeVendor = (e,i,values,setValues) => {
+    setSelectedVendorOption(selectedOption);
+    const paymentApplication = [...values.paymentApplication];
+    paymentApplication[i].application_vendor = e
+    setValues({ ...values, paymentApplication });
+  };
+  const handleChangeDate = (e,i,values,setValues) => {
+    const paymentApplication = [...values.paymentApplication];
+    console.log("selected date",e)
+    paymentApplication[i].application_expiry = new Date(e)
+    setValues({ ...values, paymentApplication });
+  };
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      background: "#f3f3f3",
+      // match with the menu
+      borderRadius: state.isFocused ? "8px" : '8px',
+      // Overwrittes the different states of border
+      // borderColor: state.isFocused ? "yellow" : "green",
+      // Removes weird border around container
+      boxShadow: state.isFocused ? null : null,
+    }),
+    menu: base => ({
+      ...base,
+      // override border radius to match the box
+      borderRadius: '8px',
+      // kill the gap
+      marginTop: 0
+    }),
+    menuList: base => ({
+      ...base,
+      // kill the white space on first and last option
+      padding: 0
+    })
   };
 
-  const notiFy = (message) => {
-    toast(message, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      });
-  }  
-
-  // The type of props LoginForm receives
- interface LoginFormProps {
-    email?: string;
-    userProfileProps: any;
-    message: string; // if this passed all the way through you might do this or make a union type
-  }
-
-  interface UserProfileProps {
-    userDataObj: object
-  }
-
-//   / Wrap our form with the withFormik HoC
- const PciManagerForm = withFormik<LoginFormProps, FormValues>({
-   // Transform outer props into form values
-   mapPropsToValues: props => {
-     console.log("props map state to props",props?.userProfileProps?.UserProfile[0])
-     let userProfleData = props?.userProfileProps?.UserProfile[0]
-     return {
-      email: props.userProfileProps?.email || '',
-      dba: userProfleData?.dba || '',
-      main: userProfleData?.main || '',
-      mobile: userProfleData?.mobile || '',
-      contact: userProfleData?.contact || '',
-      address_line_1: userProfleData?.address_line_1 || '',
-      address_line_2: userProfleData?.address_line_2 || '',
-      company: userProfleData?.company || '',
-      mid: userProfleData?.mid || '',
-      state: userProfleData?.state || '',
-      country: userProfleData?.country || '',
-      mcc: userProfleData?.mcc || '',
-      url: userProfleData?.url || '',
-      ip_address: userProfleData?.ip_address || '',
-      business_type:userProfleData?.business_type || '',
-      payment_channels:userProfleData?.payment_channels || '',
-      payment_channels_covered:userProfleData?.payment_channels_covered || '',
-     };
-   },
- 
-   // Add a custom validation function (this can be async too!)
-   validate: (values: FormValues) => {
-    let errors: FormikErrors<FormValues> = {};
-    const regex = /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/i;
-    const regxValidUrl = /^(http|HTTP)+(s|S)?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\w\-\._\$\(\)/]+$/g;
-    const regxForIp = /^(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)\.(25[0-5]|2[0-4][0-9]|[1]?[1-9][1-9]?)$/;
-    if (!values.email) {
-      errors.email = 'Email is required';
-    } if (!values.dba) {
-      errors.dba = 'DBA is required';
-    }if (!values.main) {
-      errors.main = 'main is required';
-    } if (!values.mobile) {
-      errors.mobile = 'mobile is required';
-    }if (!regex.test(values.mobile)) {
-      errors.mobile = "Invalid phone number";
-    }if (!regex.test(values.contact)) {
-      errors.contact = "Invalid contact";
-    } if (!values.contact) {
-      errors.contact = 'contact is required';
-    } if (!values.address_line_1) {
-      errors.address_line_1 = 'Address line 1 is required';
-    } if (!values.address_line_2) {
-      errors.address_line_2 = 'Address line 2 is required';
-    } if (!values.company) {
-      errors.company = 'company is required';
-    } if (!values.mid) {
-      errors.mid = 'mid is required';
-    } if (!values.state) {
-      errors.state = 'state is required';
-    } if (!values.country) {
-      errors.country = 'country is required';
-    } if (!values.mcc) {
-      errors.mcc = 'mcc is required';
-    } if (!values.url) {
-      errors.url = 'url is required';
-    }if(!regxValidUrl.test(values.url)){
-      errors.url = 'url is not valid';
-    }
-    // if(!regxForIp.test(values.ip_address)){
-    //   errors.ip_address = 'ip address is not valid';
-    // } 
-    if (!values.ip_address) {
-      errors.ip_address = 'ip address is required';
-    } 
-     return errors;
-   },
- 
-   handleSubmit: async values => {
-    const {email} = values 
-    console.log("values",values)
-    const response = await fetch(`/api/get-user-profile-data/${values.email}`, {
-      method: 'POST',
-      body: JSON.stringify(values)
-    });
-    const data:any = await response.json()
-    console.log("response",data)
-    if(!response.ok){
-      notiFy(data.message)
-    }else{
-      notiFy(data.message)
-    }
-     // do submitting things
-   },
- })(InnerForm);
-
-const PciManagerComp = (props:UserProfileProps) => {
-  console.log("props",props)
-    const router = useRouter()
-const [session, loading]:any = useSession()
-
-useEffect(() => {
-  
-}, [loading, session])
-    return(
-      <div className="focus:from-pink-500 focus:to-yellow-500 user-profile-page-height">
-        <PciManagerForm userProfileProps={props.userDataObj} message="Sign up" />  
-        <ToastContainer closeOnClick/>
-      </div>
+    return (
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+            {({ errors, values, touched, setValues }) => (
+                <Form>
+                    <div className="card m-3">
+                        <FieldArray name="paymentApplication">
+                        {() => (values.paymentApplication.map((application, i) => {
+                            const ticketErrors = errors.paymentApplication?.length && errors.paymentApplication[i] || {};
+                            const ticketTouched = touched.paymentApplication && touched.paymentApplication[i] || {};
+                            return (
+                                <div key={i} className="container flex flex-row ">
+                                    <div className="height-feet-content container ">
+                                      <div className="w-2/4 my-2">
+                                        <label className="py-2 flex items-center">
+                                          <div className="tag text-gray-500">Does your organization use one or more payment application?</div>
+                                          <Field type="checkbox" name={`application.${i}.payment_type`} id={`application.${i}.payment_type`}  className="regular-checkbox big-checkbox ml-5" /><label htmlFor={`application.${i}.payment_type`} className='ml-5'></label>
+                                        </label>
+                                      </div>
+                          
+                                      <div className="w-1/4 mb-4 mt-5">
+                                        <Field name={`application.${i}.application_name`}>
+                                          {({ field }) => (
+                                              <>
+                                                <label className="font-bold text-gray-500 block mb-2">Payment application name</label>
+                                                <Select
+                                                name={`application.${i}.application_name`}
+                                                  value={application[i]?.application_name?.value}
+                                                  styles={customStyles}
+                                                  className={(ticketErrors.application_name && ticketTouched.application_name ? 'is-invalid' : '')}
+                                                  onChange={(e) => handleChange(e,i,values, setValues)}
+                                                  options={optionPaymentApplications}
+                                                />
+                                                <ErrorMessage name={`application.${i}.application_name`} component="div" className="invalid-feedback" />
+                                              </>
+                                          )}
+                                        </Field>
+                                      </div>
+                          
+                                      <div className="w-1/4 mb-4 mt-5">
+                                        <Field name={`application.${i}.version_name`}>
+                                            {({ field }) => (
+                                                <>
+                                                  <label className="font-bold text-gray-500 block mb-2">Version name</label>
+                                                  <Select
+                                                  name={`application.${i}.version_name`}
+                                                    value={application[i]?.version_name?.value}
+                                                    styles={customStyles}
+                                                    onChange={(e) => handleChangeVersion(e,i,values, setValues)}
+                                                    options={optionVersion}
+                                                  />
+                                                </>
+                                            )}
+                                          </Field>
+                                          <ErrorMessage name={`application.${i}.version_name`} component="div" className="invalid-feedback" />
+                                      </div>
+                          
+                                      <div className="w-1/4 mb-4 mt-5">
+                                        <Field name={`application.${i}.application_vendor`}>
+                                          {({ field }) => (
+                                              <>
+                                                <label className="font-bold text-gray-500 block mb-2">Application Vendor</label>
+                                                <Select
+                                                name={`application.${i}.application_vendor`}
+                                                  value={application[i]?.application_vendor?.value}
+                                                  styles={customStyles}
+                                                  onChange={(e) => handleChangeVendor(e,i,values, setValues)}
+                                                  options={options}
+                                                />
+                                              </>
+                                          )}
+                                        </Field>
+                                        <ErrorMessage name={`application.${i}.application_vendor`} component="div" className="invalid-feedback" />
+                                      </div>
+                          
+                                      <div className="w-full my-2">
+                                        <label className="py-2 flex items-center">
+                                          <div className="tag text-gray-500">Is Application PA-DSS Listed?</div>
+                                          <Field type="checkbox" name={`application.${i}.is_application_listed`} id={`application.${i}.is_application_listed`}  className="regular-checkbox big-checkbox ml-5" /><label htmlFor={`application.${i}.is_application_listed`} className='ml-5' ></label>
+                                        </label>
+                                      </div>
+                          
+                                      <div className="mb-4 mt-5">
+                                        <Field name={`application.${i}.application_expiry`}>
+                                          {({ field }) => (
+                                              <>
+                                                <label className="font-bold text-gray-500 block mb-2">PA-DSS List Expiry</label>
+                                                <Field type="date" className='w-1/4 background-input-color pl-2 pr-2 pt-2 pb-2 text-gray-500 rounded-md unstyled' value={values?.application_expiry} onChange={(date) => handleChangeDate(date,i,values, setValues)} />
+                                                {/* <DatePicker className='w-full background-input-color pl-8 pr-8 pt-2 pb-2' selected={values?.application_expiry} onChange={(date) => handleChangeDate(date,i,values, setValues)} /> */}
+                                              </>
+                                          )}
+                                        </Field>
+                                        <ErrorMessage name={`application.${i}.application_expiry`} component="div" className="invalid-feedback" />
+                                      </div>
+                                      
+                                    </div>
+                                
+                              </div>
+                            );
+                        }))}
+                        </FieldArray>
+                        <div className="my-4 flex items-center justify-end next-button-pci-manager mt-10">
+                          <div className='ml-10 mr-10'>
+                            <button type="button" onClick={(e)=>addPaymentType(e, values, setValues)} className='rounded-3xl bg-color-13aeb7 px-10 transform hover:scale-110 text-white py-2 px-4 rounded transition duration-700 ease-in-out' >
+                                Add
+                            </button>
+                          </div>
+                          <div className='mr-10'>
+                            <button type="submit" className='rounded-3xl bg-purple-900 px-10 transform hover:scale-110 text-white py-2 px-4 rounded transition duration-700 ease-in-out'>
+                                Next
+                            </button>
+                          </div>
+                        </div>
+                    </div>
+                </Form>
+            )}
+        </Formik>
     )
 }
 
-export default PciManagerComp;
+export default CustomersPay;

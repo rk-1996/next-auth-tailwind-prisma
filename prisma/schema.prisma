@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider          = "postgresql"
-  url               = "postgresql://proven_cli:provencli@localhost:5432/proven-cli-prisma"
-  shadowDatabaseUrl = "postgresql://proven_cli:provencli@localhost:5432/next-auth-proven-cli"
+  url               = "postgresql://postgres:p@ssw0rd@localhost:5432/proven-cli-prisma"
+  shadowDatabaseUrl = "postgresql://postgres:p@ssw0rd@localhost:5432/next-auth-proven-cli"
 }
 
 model User {
@@ -37,7 +37,7 @@ model UserProfile {
   address_line_2           String?
   country                  String?
   state                    String?
-  business_type             String[]
+  business_type            String[]
   payment_channels         String[]
   payment_channels_covered String[]
   mcc                      String?
@@ -47,4 +47,25 @@ model UserProfile {
   updatedAt                DateTime @updatedAt @map(name: "updated_at")
 
   @@map(name: "users_profile")
+}
+
+model VersionNumber {
+  id                     Int                @id @default(autoincrement())
+  name                   String?
+  paymentApplication     PaymentApplication @relation(fields: [payment_application_id], references: [id])
+  payment_application_id Int                
+  createdAt              DateTime           @default(now()) @map(name: "created_at")
+  updatedAt              DateTime           @updatedAt @map(name: "updated_at")
+
+  @@map(name: "versionNumbers")
+}
+
+model PaymentApplication {
+  id            Int             @id @default(autoincrement())
+  paymentName   String?
+  createdAt     DateTime        @default(now()) @map(name: "created_at")
+  updatedAt     DateTime        @updatedAt @map(name: "updated_at")
+  VersionNumber VersionNumber[]
+
+  @@map(name: "paymentApplications")
 }

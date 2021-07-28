@@ -16,12 +16,9 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => {
   const [isSideBarClose,setIsSideBarClose] = useState(false);
   const router = useRouter()
   const [session, loading]:any = useSession()
-  console.log("loading && session?.accessToken &&",loading ,session?.accessToken)
 
   useEffect(() => {
-    console.log("session?.accessToken",session?.accessToken)
     if(!loading && session?.accessToken) {
-      console.log(session?.user?.data?.isFirstTimeLogin)
       if(session?.user?.data?.isFirstTimeLogin){
         router.push(`/set-password/${session.user.data.id}`)
       }
@@ -46,7 +43,7 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => {
         session?.accessToken &&
         <SideBar SideBarClose={isSideBarClose}/>
       }
-      <div className="flex-1 content-height font-bold">
+      <div className="flex-1 content-height font-bold background-content-body">
 
         {children}
       </div>

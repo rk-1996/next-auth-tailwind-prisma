@@ -28,7 +28,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         res.status(400).json({ message: 'Something went wrong' });
       }
     } catch (error) {
-      console.log("error",error)
       res.status(400).json({ message: 'Something went wrong' });
     }
   }else{
@@ -41,7 +40,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           UserProfile: true, // All posts where authorId == 20
         },
       });
-      console.log(getCorrectUserDataByIdPass)
       if(getCorrectUserDataByIdPass){
         
         res.status(200).json({ message: 'Data found',data:getCorrectUserDataByIdPass });
