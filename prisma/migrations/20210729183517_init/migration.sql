@@ -60,11 +60,30 @@ CREATE TABLE "paymentApplications" (
     PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "employeeTraining" (
+    "id" SERIAL NOT NULL,
+    "first_name" TEXT,
+    "last_name" TEXT,
+    "company_email" TEXT,
+    "employee_number" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users.email_unique" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_profile.user_id_unique" ON "users_profile"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "employeeTraining.company_email_unique" ON "employeeTraining"("company_email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "employeeTraining.employee_number_unique" ON "employeeTraining"("employee_number");
 
 -- AddForeignKey
 ALTER TABLE "users_profile" ADD FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

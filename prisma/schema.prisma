@@ -53,7 +53,7 @@ model VersionNumber {
   id                     Int                @id @default(autoincrement())
   name                   String?
   paymentApplication     PaymentApplication @relation(fields: [payment_application_id], references: [id])
-  payment_application_id Int                
+  payment_application_id Int
   createdAt              DateTime           @default(now()) @map(name: "created_at")
   updatedAt              DateTime           @updatedAt @map(name: "updated_at")
 
@@ -68,4 +68,16 @@ model PaymentApplication {
   VersionNumber VersionNumber[]
 
   @@map(name: "paymentApplications")
+}
+
+model EmployeeTraining {
+  id              Int      @id @default(autoincrement())
+  first_name      String?
+  last_name       String?
+  company_email   String?  @unique
+  employee_number String?  @unique
+  createdAt       DateTime @default(now()) @map(name: "created_at")
+  updatedAt       DateTime @updatedAt @map(name: "updated_at")
+
+  @@map(name: "employeeTraining")
 }

@@ -57,6 +57,14 @@ const SideBar = ({SideBarClose}:Props) => {
                     <a href="" className="block text-center py-2.5 px-4 rounded transition duration-200 sidebar-link-hover hover:text-purple-900">
                         Policy & Procedures
                     </a>
+                    <ActiveLink activeClassName="active" href="/training">
+                        
+                        {/* <Link href="/profile-page"> */}
+                            <a href="/training" className="block text-center py-2.5 px-4 rounded transition duration-200 sidebar-link-hover hover:sidebar-link-hover hover:text-purple-900">
+                                Training
+                            </a>
+                        {/* </Link> */}
+                    </ActiveLink>
                     <ActiveLink activeClassName="active" href="/pci-manager">
 
                         <a className="block text-center py-2.5 px-4 rounded transition duration-200 sidebar-link-hover hover:text-purple-900">

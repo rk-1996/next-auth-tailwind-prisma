@@ -93,9 +93,7 @@ const  CustomersPay = (props) => {
   }
 
   const handleChange = (e,i,values,setValues) => {
-    const paymentApplication = [...values.paymentApplication];
-    paymentApplication[i].application_name = e
-    setValues({ ...values, paymentApplication });
+    
     let optionForVersions = paymentApplicationData.paymentApplicationData.filter((paymentTypes) => paymentTypes.id === e.value);
     console.log("optionForVersions",e," - ",optionForVersions)
     let setOptionForVersions = optionForVersions[0] && optionForVersions[0].VersionNumber.map((val)=>{
@@ -105,7 +103,12 @@ const  CustomersPay = (props) => {
       }
     })
     setOptionVersion(setOptionForVersions)
-    setSelectedOption(selectedOption);
+
+    const paymentApplication = [...values.paymentApplication];
+    paymentApplication[i].application_name = e
+    paymentApplication[i].version_name = '';
+    console.log('paymentApplication',paymentApplication)
+    setValues({ ...values, paymentApplication });
   };
   const handleChangeVersion = (e,i,values,setValues) => {
     console.log("allecd",e)
@@ -160,7 +163,7 @@ const  CustomersPay = (props) => {
       color: '#6b7280'
     })
   };
-
+  console.log("initialValues",initialValues)
     return (
         <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
             {({ errors, values, touched, setValues }) => (
