@@ -20,7 +20,7 @@ interface PaymentValue {
 
 const  QirAssistant = (props) => {
   const{setStepCustomersPay,stepCustomersPay} = props;
-  const initialValues = {
+  const initialValues:any = {
     paymentApplication: [
       {
         application_name:'',
@@ -83,7 +83,6 @@ const  QirAssistant = (props) => {
                         <FieldArray name="paymentApplication">
                         {() => (values.paymentApplication.map((application, i) => {
                             const ticketErrors = errors.paymentApplication?.length && errors.paymentApplication[i] || {};
-                            const ticketTouched = touched.paymentApplication?.length && touched.paymentApplication[i] || {};
                             return (
 													<div key={i} className="container flex flex-row">
 															<div className="w-2/4 mb-4 mt-5 mr-10">
