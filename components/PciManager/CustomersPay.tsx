@@ -12,7 +12,7 @@ type Props = {
 
 // Shape of form values
 interface FormValues {
-  payment_type: Array;
+  payment_type: any;
 }
 
 interface OtherProps {
