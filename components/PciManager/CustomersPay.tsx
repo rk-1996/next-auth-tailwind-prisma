@@ -87,7 +87,6 @@ const InnerForm = (props: OtherProps & FormikProps<FormValues>) => {
   }
 
   interface UserProfileProps {
-    userDataObj: object,
     setStepCustomersPay: Function,
     stepCustomersPay: Number,
   }
